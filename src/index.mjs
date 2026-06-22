@@ -59,47 +59,47 @@ app.listen(PORT, ()=>{
  //Qurey prameters
 
 // //localhost:3000/users?filter=user_name&value=Th
-// app.get("/api/users", (req, res)=>{
-//     const{query:{filter, value}} = req;
-//     console.log(filter, value);
+app.get("/api/users", (req, res)=>{
+    const{query:{filter, value}} = req;
+    console.log(filter, value);
 
-//     // If no filter/value provided, return all users
-//     if (!filter || !value) {
-//         return res.send(users);
-//     }
+    // If no filter/value provided, return all users
+    if (!filter || !value) {
+        return res.send(users);
+    }
 
-//     const q = String(user).toLowerCase();
-//     const results = users.filter((user) => {
-//         const field = user[filter];
-//         if (field === value || field === null) return false;
-//         return String(field).toLowerCase().includes(q);
-//     });
+    const q = String(user).toLowerCase();
+    const results = users.filter((user) => {
+        const field = user[filter];
+        if (field === value || field === null) return false;
+        return String(field).toLowerCase().includes(q);
+    });
 
-//     return res.send(results);
-// });
+    return res.send(results);
+});
 
 
 // // localhost:3000/products?filter=product_name&value=Th
-// // Use `/api/products` for query filtering. Keep `/api/products/:id` separate
-// // if you want to fetch by id.
-// app.get("/api/products", (req, res) => {
-//     const { query: { filter, value } = {} } = req;
-//     console.log(filter, value);
+// Use `/api/products` for query filtering. Keep `/api/products/:id` separate
+// if you want to fetch by id.
+app.get("/api/products", (req, res) => {
+    const { query: { filter, value } = {} } = req;
+    console.log(filter, value);
 
-//     // If no filter/value provided, return all products
-//     if (!filter || !value) {
-//         return res.send(products);
-//     }
+    // If no filter/value provided, return all products
+    if (!filter || !value) {
+        return res.send(products);
+    }
 
-//     const q = String(value).toLowerCase();
-//     const results = products.filter((product) => {
-//         const field = product[filter];
-//         if (field === value || field === null) return false;
-//         return String(field).toLowerCase().includes(q);
-//     });
+    const q = String(value).toLowerCase();
+    const results = products.filter((product) => {
+        const field = product[filter];
+        if (field === value || field === null) return false;
+        return String(field).toLowerCase().includes(q);
+    });
 
-//     return res.send(results);
-// });
+    return res.send(results);
+});
 
 // Post Request Api
 
@@ -126,7 +126,12 @@ app.post("/api/users", (req, res)=>{
     return res.status(201).send(newUser);
 })
 
-// Put - Update  Request Api (complete update)
+// Put - Update Request API (complete replacement)
+
+// - Parses `:id` from the URL and validates it
+// - Finds the user by index and replaces the whole user object
+// - Expects a JSON body (middleware `express.json()` is enabled)
+// - Returns 400 for invalid id, 404 if user missing, 200 on success
 
 app.put("/api/user/:id", (req,res)=>{
     const id = parseInt(req.params.id);
@@ -141,4 +146,42 @@ app.put("/api/user/:id", (req,res)=>{
     users[userIndex] = {id: id, ...body};
     return res.status(200).send({msg: "user updated"});
 
+})
+
+// Patch Request API (partial update)
+
+// - Similar to PUT but merges provided fields into the existing user
+// - Validates `:id` and existence of the user
+// - Returns 400 for invalid id, 404 if user missing, 200 on success
+
+app.patch("/api/user/:id", (req,res)=>{
+    const id = parseInt(req.params.id);
+    if(isNaN(id)){
+        return res.status(400).send({message: "Bad Request Invalid id"})
+    }
+    const userIndex = users.findIndex((user) => user.id === id);
+    if(userIndex === -1){
+        return res.status(404).send({message: "User not found"});
+    }
+    const {body} = req;
+    users[userIndex] ={...users[userIndex], ...body}
+    return res.sendStatus(200);
+})
+
+// Delete Request API
+
+// - Validates `:id`, finds the user index and removes the user from the array
+// - Returns 400 for invalid id, 404 if user missing, 200 on success
+
+app.delete("/api/user/:id", (req,res)=>{
+    const id = parseInt(req.params.id);
+    if(isNaN(id)){
+        return res.status(400).send({message: "Bad Request Invalid id"})
+    }
+    const userIndex = users.findIndex((user) => user.id === id);
+    if(userIndex === -1){
+        return res.status(404).send({message: "User not found"});
+    }
+    users.splice(userIndex, 1);
+    res.sendStatus(200);
 })
