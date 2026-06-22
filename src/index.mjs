@@ -21,7 +21,8 @@ const products = [
 ]
 
 
-            // Route Parameters
+            // Route Parameter
+// Post Request Api
 app.get("/", (req, res)=>{
     res.send({message: "Hello World!"})
 });
@@ -57,64 +58,70 @@ app.listen(PORT, ()=>{
 
  //Qurey prameters
 
-//localhost:3000/users?filter=user_name&value=Th
-app.get("/api/", (req, res)=>{
-    const{query:{filter, value}} = req;
-    console.log(filter, value);
+// //localhost:3000/users?filter=user_name&value=Th
+// app.get("/api/users", (req, res)=>{
+//     const{query:{filter, value}} = req;
+//     console.log(filter, value);
 
-    // If no filter/value provided, return all users
-    if (!filter || !value) {
-        return res.send(users);
-    }
+//     // If no filter/value provided, return all users
+//     if (!filter || !value) {
+//         return res.send(users);
+//     }
 
-    const q = String(value).toLowerCase();
-    const results = users.filter((user) => {
-        const field = user[filter];
-        if (field === value || field === null) return false;
-        return String(field).toLowerCase().includes(q);
-    });
+//     const q = String(user).toLowerCase();
+//     const results = users.filter((user) => {
+//         const field = user[filter];
+//         if (field === value || field === null) return false;
+//         return String(field).toLowerCase().includes(q);
+//     });
 
-    return res.send(results);
-});
-
-app.get("/api/users", (req, res)=>{
-    const{query:{filter, value}} = req;
-    console.log(filter, value);
-
-    // If no filter/value provided, return all users
-    if (!filter || !value) {
-        return res.send(users);
-    }
-
-    const q = String(user).toLowerCase();
-    const results = users.filter((user) => {
-        const field = user[filter];
-        if (field === value || field === null) return false;
-        return String(field).toLowerCase().includes(q);
-    });
-
-    return res.send(results);
-});
+//     return res.send(results);
+// });
 
 
-// localhost:3000/products?filter=product_name&value=Th
-// Use `/api/products` for query filtering. Keep `/api/products/:id` separate
-// if you want to fetch by id.
-app.get("/api/products", (req, res) => {
-    const { query: { filter, value } = {} } = req;
-    console.log(filter, value);
+// // localhost:3000/products?filter=product_name&value=Th
+// // Use `/api/products` for query filtering. Keep `/api/products/:id` separate
+// // if you want to fetch by id.
+// app.get("/api/products", (req, res) => {
+//     const { query: { filter, value } = {} } = req;
+//     console.log(filter, value);
 
-    // If no filter/value provided, return all products
-    if (!filter || !value) {
-        return res.send(products);
-    }
+//     // If no filter/value provided, return all products
+//     if (!filter || !value) {
+//         return res.send(products);
+//     }
 
-    const q = String(value).toLowerCase();
-    const results = products.filter((product) => {
-        const field = product[filter];
-        if (field === value || field === null) return false;
-        return String(field).toLowerCase().includes(q);
-    });
+//     const q = String(value).toLowerCase();
+//     const results = products.filter((product) => {
+//         const field = product[filter];
+//         if (field === value || field === null) return false;
+//         return String(field).toLowerCase().includes(q);
+//     });
 
-    return res.send(results);
-});
+//     return res.send(results);
+// });
+
+// Post Request Api
+
+// Parse incoming JSON payloads and populate `req.body`.
+// This middleware is required before handlers that read `req.body`.
+app.use(express.json()); // Middlewares 
+
+// Create a new user
+app.post("/api/users", (req, res)=>{
+    // Log the incoming request body for debugging / inspection
+    console.log(req.body);
+
+    // Destructure the parsed body from the request object
+    const {body} =req;
+
+    // Create a new user object. The id is auto-incremented using
+    // the last user's id in the in-memory `users` array.
+    const newUser = {id: users[users.length-1].id+1, ...body};
+
+    // Add the new user to the in-memory store
+    users.push(newUser);
+
+    // Return 201 Created with the new resource in the response body
+    return res.status(201).send(newUser);
+})
