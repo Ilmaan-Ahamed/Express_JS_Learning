@@ -12,6 +12,16 @@ const users = [
     {id:5, user_name: "Iron Man"},
 ]
 
+const products = [
+    {id:1, product_name: "Mjolnir"},
+    {id:2, product_name: "Web Shooters"},
+    {id:3, product_name: "Hulk's Gamma Ray"},
+    {id:4, product_name: "Shield"},
+    {id:5, product_name: "Arc Reactor"},
+]
+
+
+            // Route Parameters
 app.get("/", (req, res)=>{
     res.send({message: "Hello World!"})
 });
@@ -19,6 +29,11 @@ app.get("/", (req, res)=>{
 app.get("/api/users", (req, res)=>{
     res.send(users);
 });
+
+app.get("/api/products", (req, res)=>{
+    res.send(products);
+});
+
 
 app.get("/api/users/:id", (req, res)=>{
 
@@ -38,3 +53,68 @@ app.get("/api/users/:id", (req, res)=>{
 app.listen(PORT, ()=>{
     console.log(`Server is running on port ${PORT}`);
 })
+
+
+ //Qurey prameters
+
+//localhost:3000/users?filter=user_name&value=Th
+app.get("/api/", (req, res)=>{
+    const{query:{filter, value}} = req;
+    console.log(filter, value);
+
+    // If no filter/value provided, return all users
+    if (!filter || !value) {
+        return res.send(users);
+    }
+
+    const q = String(value).toLowerCase();
+    const results = users.filter((user) => {
+        const field = user[filter];
+        if (field === value || field === null) return false;
+        return String(field).toLowerCase().includes(q);
+    });
+
+    return res.send(results);
+});
+
+app.get("/api/users", (req, res)=>{
+    const{query:{filter, value}} = req;
+    console.log(filter, value);
+
+    // If no filter/value provided, return all users
+    if (!filter || !value) {
+        return res.send(users);
+    }
+
+    const q = String(user).toLowerCase();
+    const results = users.filter((user) => {
+        const field = user[filter];
+        if (field === value || field === null) return false;
+        return String(field).toLowerCase().includes(q);
+    });
+
+    return res.send(results);
+});
+
+
+// localhost:3000/products?filter=product_name&value=Th
+// Use `/api/products` for query filtering. Keep `/api/products/:id` separate
+// if you want to fetch by id.
+app.get("/api/products", (req, res) => {
+    const { query: { filter, value } = {} } = req;
+    console.log(filter, value);
+
+    // If no filter/value provided, return all products
+    if (!filter || !value) {
+        return res.send(products);
+    }
+
+    const q = String(value).toLowerCase();
+    const results = products.filter((product) => {
+        const field = product[filter];
+        if (field === value || field === null) return false;
+        return String(field).toLowerCase().includes(q);
+    });
+
+    return res.send(results);
+});
