@@ -35,8 +35,8 @@ app.get("/api/products", (req, res)=>{
     res.send(products);
 });
 
-
-app.get("/api/users/:id", (req, res)=>{
+// Get Request Api
+app.get("/api/user/:id", (req, res)=>{
 
     // to conver Sting to int parseInt() usefull
     const id = parseInt(req.params.id);
@@ -124,4 +124,21 @@ app.post("/api/users", (req, res)=>{
 
     // Return 201 Created with the new resource in the response body
     return res.status(201).send(newUser);
+})
+
+// Put - Update  Request Api (complete update)
+
+app.put("/api/user/:id", (req,res)=>{
+    const id = parseInt(req.params.id);
+    if(isNaN(id)){
+        return res.status(400).send({message: "Bad Request Invalid id"})
+    }
+    const userIndex = users.findIndex((user) => user.id === id);
+    if(userIndex === -1){
+        return res.status(404).send({message: "User not found"});
+    }
+    const {body} = req;
+    users[userIndex] = {id: id, ...body};
+    return res.status(200).send({msg: "user updated"});
+
 })
