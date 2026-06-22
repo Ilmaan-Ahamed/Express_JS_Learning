@@ -27,7 +27,7 @@ app.get("/", (req, res)=>{
     res.send({message: "Hello World!"})
 });
 
-app.get("/api/users", (req, res)=>{
+app.get("/api/user", (req, res)=>{
     res.send(users);
 });
 
@@ -59,7 +59,7 @@ app.listen(PORT, ()=>{
  //Qurey prameters
 
 // //localhost:3000/users?filter=user_name&value=Th
-app.get("/api/users", (req, res)=>{
+app.get("/api/user", (req, res)=>{
     const{query:{filter, value}} = req;
     console.log(filter, value);
 
@@ -82,6 +82,7 @@ app.get("/api/users", (req, res)=>{
 // // localhost:3000/products?filter=product_name&value=Th
 // Use `/api/products` for query filtering. Keep `/api/products/:id` separate
 // if you want to fetch by id.
+
 app.get("/api/products", (req, res) => {
     const { query: { filter, value } = {} } = req;
     console.log(filter, value);
@@ -105,10 +106,11 @@ app.get("/api/products", (req, res) => {
 
 // Parse incoming JSON payloads and populate `req.body`.
 // This middleware is required before handlers that read `req.body`.
+
 app.use(express.json()); // Middlewares 
 
 // Create a new user
-app.post("/api/users", (req, res)=>{
+app.post("/api/user", (req, res)=>{
     // Log the incoming request body for debugging / inspection
     console.log(req.body);
 
@@ -185,3 +187,95 @@ app.delete("/api/user/:id", (req,res)=>{
     users.splice(userIndex, 1);
     res.sendStatus(200);
 })
+
+// Middlewares II
+
+// Middlewares For getUserIndexByID
+const getUserIndexById = (req, res, next) => {
+    const id = parseInt(req.params.id);
+    if(isNaN(id)){
+        return res.status(400).send({message: "Bad Request Invalid id"})
+    }
+    const userIndex = users.findIndex((user) => user.id === id);
+    if(userIndex === -1){
+        return res.status(404).send({message: "User not found"});
+    }
+    req.userIndex = userIndex;
+    next();
+}
+
+// use Delete Request with Middleware II getUserIndexById
+
+app.delete("/api/user/:id",getUserIndexById, (req,res)=>{
+    const userIndex = req.userIndex;
+    console.log(userIndex)
+    users.splice(userIndex, 1);
+    res.sendStatus(200);
+})
+
+// Use Patch Request with Middleware II 
+app.patch("/api/user/:id", (req,res)=>{
+    const userIndex = req.userIndex;
+    const {body} = req;
+    users[userIndex] ={...users[userIndex], ...body}
+    return res.sendStatus(200);
+})
+
+// Use Put Request with Middleware II 
+app.put("/api/user/:id", (req,res)=>{
+    const userIndex = req.userIndex;
+    const {body} = req;
+    users[userIndex] ={...users[userIndex], ...body}
+    return res.sendStatus(200);
+})
+
+// use Delete Request with Middleware II getUserIndexById
+
+app.delete("/api/user/:id",getUserIndexById, (req,res)=>{
+    const userIndex = req.userIndex;
+    console.log(userIndex)
+    users.splice(userIndex, 1);
+    res.sendStatus(200);
+})
+
+// Use Patch Request with Middleware II 
+app.patch("/api/user/:id", (req,res)=>{
+    const userIndex = req.userIndex;
+    const {body} = req;
+    users[userIndex] ={...users[userIndex], ...body}
+    return res.sendStatus(200);
+})
+
+
+// Middlewares For getParamsId user id & product id
+const getParamsId = (req, res, next)=>{
+    const id = parseInt(req.params.id);
+    if(isNaN(id)){
+       return res.status(400).send({message: "Bad Request Invaild id"})
+    }
+    req.id = id;
+    next();
+}
+
+// Use Middleware II for getParamsId user id & product id
+// Use Put Request with Middleware II 
+
+app.get("/api/user/:id",getParamsId, (req,res)=>{
+    const id = req.id;
+    const user = users.find((user)=>user.id === id);
+    if(user){
+        return res.send(user);
+    }
+    return res.status(404).send({msg: "User Not Found"});
+});
+
+app.get("/api/products/:id",getParamsId, (req,res)=>{
+    const id = req.id;
+    const user = users.find((user)=>user.id === id);
+    if(user){
+        return res.send(user);
+    }
+    return res.status(404).send({msg: "User Not Found"});
+});
+
+
