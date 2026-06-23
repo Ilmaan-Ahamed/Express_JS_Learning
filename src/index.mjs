@@ -32,10 +32,12 @@ app.get("/", (req, res)=>{
     res.send({message: "Hello World!"})
 });
 
+// Get Request Api
 app.get("/api/user", (req, res)=>{
     res.send(users);
 });
 
+// Get Request Api
 app.get("/api/products", (req, res)=>{
     res.send(products);
 });
@@ -274,6 +276,7 @@ app.get("/api/user/:id",getParamsId, (req,res)=>{
     return res.status(404).send({msg: "User Not Found"});
 });
 
+// Use Middleware II for getParamsId user id & product id
 app.get("/api/products/:id",getParamsId, (req,res)=>{
     const id = req.id;
     const user = users.find((user)=>user.id === id);
@@ -287,8 +290,10 @@ app.get("/api/products/:id",getParamsId, (req,res)=>{
 // Create a new user With Validation Schema
 app.post("/api/user", checkSchema(createUserValidationSchema), (req, res)=>{
 
+    //Get the validation result from the request object
     const result = validationResult(req);
     
+    // If there are validation errors, return 400 Bad Request with the error details
     if(!result.isEmpty()){
         return res.status(400).send({error:result.array()});
     }
