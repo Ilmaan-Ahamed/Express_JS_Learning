@@ -1,5 +1,10 @@
 import express from "express";
 
+// for Validation 
+import {createUserValidationSchema} from './utils/validationSchemas.mjs'
+import { validationResult, matchedData, checkSchema } from "express-validator";
+
+
 const app = express();
 
 const PORT = 3000;
@@ -279,3 +284,28 @@ app.get("/api/products/:id",getParamsId, (req,res)=>{
 });
 
 
+// Create a new user With Validation Schema
+app.post("/api/user", checkSchema(createUserValidationSchema), (req, res)=>{
+
+    const result = validationResult(req);
+    
+    if(!result.isEmpty()){
+        return res.status(400).send({error:result.array()});
+    }
+
+    // Log the incoming request body for debugging / inspection with Validation Schema
+    console.log(req['express-validator#contexts']);
+
+    // Destructure the parsed body from the request object
+    const body = matchedData(req);
+
+    // Create a new user object. The id is auto-incremented using
+    // the last user's id in the in-memory `users` array.
+    const newUser = {id: users[users.length-1].id+1, ...body};
+
+    // Add the new user to the in-memory store
+    users.push(newUser);
+
+    // Return 201 Created with the new resource in the response body
+    return res.status(201).send(newUser);
+})
