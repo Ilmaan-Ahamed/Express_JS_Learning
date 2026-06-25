@@ -4,8 +4,11 @@ import express from "express";
 import {createUserValidationSchema} from './utils/validationSchemas.mjs'
 import { validationResult, matchedData, checkSchema } from "express-validator";
 
+import userRouter from "./routes/user.mjs"
 
 const app = express();
+app.use(express.json());
+app.use(userRouter);
 
 const PORT = 3000;
 
@@ -28,9 +31,9 @@ const products = [
 
             // Route Parameter
 // Post Request Api
-app.get("/", (req, res)=>{
-    res.send({message: "Hello World!"})
-});
+// app.get("/", (req, res)=>{
+//     res.send({message: "Hello World!"})
+// });
 
 // Get Request Api
 app.get("/api/user", (req, res)=>{
@@ -114,7 +117,7 @@ app.get("/api/products", (req, res) => {
 // Parse incoming JSON payloads and populate `req.body`.
 // This middleware is required before handlers that read `req.body`.
 
-app.use(express.json()); // Middlewares 
+// app.use(express.json()); // Middlewares 
 
 // Create a new user
 app.post("/api/user", (req, res)=>{
