@@ -2,6 +2,9 @@ import express from "express";
 import routes from "./routes/router.mjs";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { users } from "../src/utils/constants.mjs";
 
 const app = express(); 
 app.use(cookieParser("wiz-001")); // Use cookie-parser middleware with a secret for signed cookies
@@ -17,6 +20,36 @@ app.use(session({
         secure: false            // Set to true if using HTTPS; false for development
     }
 }));
+
+app.use(passport.initialize()); // Initialize Passport for authentication
+app.use(passport.session());    // Use Passport's session management
+
+    // Here you would typically look up the user in your database and verify the password
+    // For demonstration, we will just check against a hardcoded user
+
+passport.use(new LocalStrategy(
+    {usernameField: "user_name", passwordField: "password"}, (user_name, password, done) => {
+    
+    const user = users.find(u => u.user_name === user_name && u.password === password);
+    if(!user){
+        return done(null, false, { message: "Incorrect username." });
+    }
+    if(user.password !== password){
+        return done(null, false, { message: "Incorrect password." });
+    }
+    return done(null, user);
+}));
+
+// Serialize the user to store in the session
+passport.serializeUser((user, done) => {
+    done(null, user.id); // Serialize the user ID to store in the session
+});
+
+// Deserialize the user from the session using the stored user ID
+passport.deserializeUser((id, done) => {
+    const user = users.find(u => u.id === id);
+    done(null, user || false); // Deserialize the user from the session
+});
 
 // Parse JSON bodies for all routes
 app.use(express.json());
@@ -43,6 +76,19 @@ app.get("/", (req, res) => {
         }
     });
     res.send({ msg: "Root" });
+});
+
+app.post("/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+        if (err) return next(err);
+        if (!user) {
+            return res.status(401).json({ message: info.message || "Login failed" });
+        }
+        req.logIn(user, (err) => {
+            if (err) return next(err);
+            return res.json({ message: "Login successful", user });
+        });
+    })(req, res, next);
 });
 
 app.listen(PORT, () => {

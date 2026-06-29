@@ -1,9 +1,9 @@
 export const users = [
-    {id:1, user_name: "Thor"},
-    {id:2, user_name: "Spider Man"},
-    {id:3, user_name: "Hulk"},
-    {id:4, user_name: "Captain America"},
-    {id:5, user_name: "Iron Man"},
+    {id:1, user_name: "Thor", password: "1"},
+    {id:2, user_name: "Spider Man", password: "12"},
+    {id:3, user_name: "Hulk", password: "123"},
+    {id:4, user_name: "Captain America", password: "1234"},
+    {id:5, user_name: "Iron Man", password: "1235"},
 ]
 
 export const products = [
