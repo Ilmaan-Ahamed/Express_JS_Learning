@@ -10,6 +10,10 @@ const router = Router();
 // - Returns all users by default
 // - Supports query filtering with ?filter=user_name&value=text
 router.get("/api/user", (req, res) => {
+
+    console.log(req.signedCookies); // Log signed cookies for debugging
+    if (req.signedCookies.user && req.signedCookies.user === "Admin") {
+       // Destructure query parameters with default empty object
     const { query: { filter, value } = {} } = req;
 
     if (filter && value) {
@@ -28,6 +32,12 @@ router.get("/api/user", (req, res) => {
     }
 
     return res.send(users);
+    }
+    else {
+        return res.status(403).send({ msg: "Forbidden: Admin access required" });       
+    }
+    
+    
 });
 
 // GET /api/user/:id
