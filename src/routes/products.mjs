@@ -8,6 +8,11 @@ const router = Router();
 // - Returns all products by default.
 // - Supports query filtering with ?filter=product_name&value=text.
 router.get("/api/products", (req, res) => {
+
+    req.session.visied = true;  // Example of setting a session variable to track if the user has visited the products route
+    console.log(req.session);   // Log the session object to see the stored data  
+    console.log(req.session.id) // Log the session ID to verify that a session is being created and maintained
+
     const { query: { filter, value } = {} } = req;
 
     if (filter && value) {
